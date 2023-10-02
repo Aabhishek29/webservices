@@ -1,3 +1,5 @@
+import datetime
+import uuid
 
 from .serializers import StudentSerializer
 from rest_framework.views import APIView
@@ -17,12 +19,16 @@ class RegisteredUser(APIView):
         return Response({'status': 'success', "students": serializers.data}, status=200)
 
     def post(self, request):
-        serializer = StudentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
-        else:
+        print(request.data)
+        try:
+            serializer = StudentSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
 
 

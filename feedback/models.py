@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 # Create your models here.
@@ -21,7 +23,7 @@ class FeedBackClass(models.Model):
         primary_key=True
     )
     createdAt = models.DateTimeField(
-        blank=False, null=False
+        blank=False, null=False, default=datetime.datetime.now()
     )
 
     def __str__(self) -> str:
