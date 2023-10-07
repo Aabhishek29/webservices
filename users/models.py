@@ -8,14 +8,17 @@ class RegisterUsers(models.Model):
     name = models.CharField(
         max_length=30, blank=False, null=False
     )
+    userName = models.CharField(
+        max_length=30, blank=False, null=False, unique=True
+    )
     email = models.CharField(
-        max_length= 30, blank=False, null= False
+        max_length= 30, blank=False, null= False, unique=True
     )
     password = models.CharField(
         max_length=16, blank=False, null=False
     )
     userId = models.UUIDField(
-        blank=False,null=False, default=uuid.uuid4()
+        blank=False,null=False, default=uuid.uuid4(), unique=True
     )
     createdAt = models.DateTimeField(
         null=False, blank=False, default=datetime.datetime.now()
