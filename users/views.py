@@ -1,3 +1,5 @@
+import random
+
 from rest_framework.decorators import api_view
 
 from .serializers import StudentSerializer
@@ -5,14 +7,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import RegisterUsers
+import re
+import math
+from django.core.mail import send_mail
 
-
+regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
 # Create your views here.
 
 
 class RegisteredUser(APIView):
     """
-    this class I use to get and register users details in database
+    hello
     """
     def get(self, request, *args, **kwargs):
         result = RegisterUsers.objects.all()
@@ -23,6 +28,8 @@ class RegisteredUser(APIView):
         print(request.data)
         serializer = None
         try:
+            if not isEmail(request.data['email']):
+                return Response({"status": "error", "data": "Invalid Email"}, status=status.HTTP_400_BAD_REQUEST)
             serializer = StudentSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -36,6 +43,11 @@ class RegisteredUser(APIView):
                 "data": serializer.errors
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+def isEmail(mail):
+    if re.fullmatch(regex, mail):
+        return True
+    else:
+        return False
 
 @api_view(['POST'])
 def authenticate(request):
@@ -43,19 +55,56 @@ def authenticate(request):
         data = request.data
         name = data["userName"]
         password = data["password"]
-        registerModel = RegisterUsers.objects.filter(userName=name).values()
-        if registerModel:
-            pswd = registerModel[0].get('password', None)
+        if isEmail(name):
+            registered = RegisterUsers.objects.filter(email=name).values()
+        else:
+            registered = RegisterUsers.objects.filter(userName=name).values()
+        if registered:
+            pswd = registered[0].get('password', None)
             if pswd == password:
-                return Response({"status": "success","authenticated": "true", "data": registerModel}, status=status.HTTP_200_OK)
+                return Response({"status": "success","authenticated": "true", "data": registered}, status=status.HTTP_200_OK)
             else:
                 return Response({"status": "success","authenticated": "false", "data": "incorrect username or password"}, status=status.HTTP_200_OK)
         else:
-            return Response({"status": "success","authenticated": "false", "data": "User not found"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"status": "success","authenticated": "false", "data": "User not found"}, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"status": "success","authenticated": "false", "data": e}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"status": "success","authenticated": "false", "data": e}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def sendOTP(email, digit):
+    digits = "0123456789"
+    OTP = ""
+    for i in range(int(digit)):
+        OTP += digits[math.floor(random.random() * 10)]
+    print(OTP)
+    htmlgen = f'<p>Your OTP is <strong>{OTP}>'
+    return send_mail('OTP request', OTP, 'starkabhishek29@gmail.com', [email], fail_silently=False,
+                  html_message=htmlgen)
+
+
+
+def verifyOTP(request):
+    pass
 
 
 @api_view(["POST"])
 def forgetPassword(request):
-    pass
+    try:
+        data = request.data
+        name = data["email"]
+        digit = data["digit"]
+        if not isEmail(name):
+            return Response({"status": "success","authenticated": "false", "data": "Please send correct email"}, status=status.HTTP_200_OK)
+        registered = RegisterUsers.objects.filter(email=name).values()
+        if registered:
+            sendOTP(name, digit)
+            return Response({"status": "success", "data": f"OTP send to the {name}"},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({"status": "success", "authenticated": "false", "data": "User not found"},
+                            status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"status": "success", "authenticated": "false", "data": e}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
