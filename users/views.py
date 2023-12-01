@@ -72,14 +72,19 @@ def authenticate(request):
 
 
 def sendOTP(email, digit):
-    digits = "0123456789"
-    OTP = ""
-    for i in range(int(digit)):
-        OTP += digits[math.floor(random.random() * 10)]
-    print(OTP)
-    htmlgen = f'<p>Your OTP is <strong>{OTP}>'
-    return send_mail('OTP request', OTP, 'starkabhishek29@gmail.com', [email], fail_silently=False,
+    try:
+        digits = "0123456789"
+        OTP = ""
+        for i in range(int(digit)):
+            OTP += digits[math.floor(random.random() * 10)]
+        print(OTP)
+        htmlgen = f'<p>Your OTP is <strong>{OTP}</p>'
+        reciptent_email = []
+        reciptent_email.append(email)
+        return send_mail('OTP request', OTP, 'indzzwebservices@gmail.com', reciptent_email , fail_silently=False,
                   html_message=htmlgen)
+    except Exception as e:
+        print("error is ", e)
 
 
 
@@ -96,13 +101,13 @@ def forgetPassword(request):
         if not isEmail(name):
             return Response({"status": "success","authenticated": "false", "data": "Please send correct email"}, status=status.HTTP_200_OK)
         registered = RegisterUsers.objects.filter(email=name).values()
-        if registered:
+        if True:
             sendOTP(name, digit)
             return Response({"status": "success", "data": f"OTP send to the {name}"},
                             status=status.HTTP_200_OK)
-        else:
-            return Response({"status": "success", "authenticated": "false", "data": "User not found"},
-                            status=status.HTTP_200_OK)
+        # else:
+        #     return Response({"status": "success", "authenticated": "false", "data": "User not found"},
+        #                     status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"status": "success", "authenticated": "false", "data": e}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -21,10 +21,10 @@ def contactUs(request):
         name = data["name"]
         email = data["email"]
         issue = data["issue"]
-        phone =  data["phoneNumber"]
+        phone = data["phoneNumber"]
         msg = data["msg"]
-        if not isEmail(email):
-            return Response({"status": "success", "data": "Please send correct email"}, status=status.HTTP_200_OK)
+        # if not isEmail(email):/
+        return Response({"status": "success", "data": "Please send correct email"}, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({"status": "success", "authenticated": "false", "data": e}, status=status.HTTP_400_BAD_REQUEST)
