@@ -56,7 +56,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:19006"
+    "http://localhost:19006",
+    "http://localhost:3000",
 ]
 ROOT_URLCONF = 'webservices.urls'
 
