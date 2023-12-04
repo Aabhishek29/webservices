@@ -6,25 +6,19 @@ from rest_framework import status
 from django.core.mail import send_mail
 import base64
 
-
-def base64_to_pdf(base64_data, file_path):
+def base64_to_image(base64_data, file_path):
     try:
-        # Remove the header from base64 string if present (e.g., 'data:application/pdf;base64,')
-        data = base64_data.split(",")[1] if "," in base64_data else base64_data
+        binary_data = base64.b64decode(base64_data)
 
-        # Decode base64 string to binary
-        binary_data = base64.b64decode(data)
-
-        # Write binary data to a PDF file
+        # Write binary data to an image file
         with open(file_path, 'wb') as file:
             file.write(binary_data)
 
-        print("PDF file created successfully at:", file_path)
+        print("Image file created successfully at:", file_path)
         return True  # Indicate success
     except Exception as e:
         print("An error occurred:", str(e))
         return False  # Indicate failure
-
 
 @api_view(["POST"])
 def contactUs(request):
@@ -66,9 +60,9 @@ def sendFormToBookingSupport(request):
         # Decode the Base64 string, making sure that it contains only valid characters
         b64 = data["base64"]  # Replace with your actual base64 data
         print(b64)
-        file_path = './your_file.pdf'  # Replace with the desired file path
+        file_path = './your_file.png'  # Replace with the desired file path
 
-        base64_to_pdf(b64, file_path)
+        base64_to_image(b64, file_path)
         return Response({"status": "success", "data": "pass"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"status": "success", "authenticated": "false", "data": e}, status=status.HTTP_400_BAD_REQUEST)

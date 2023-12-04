@@ -39,3 +39,13 @@ class RegisterUsers(models.Model):
         default=False, null=False, blank=False
     )
 
+class BookingSupportDB(models.Model):
+    name = models.CharField(
+        max_length=30, blank=False, null=False
+    )
+    hotelName = models.CharField(
+        max_length=30, blank=False, null=False, unique=True
+    )
+    email = models.CharField(
+        max_length=30, blank=False, null=False, unique=True
+    )
